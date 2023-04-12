@@ -20,6 +20,8 @@ sudo apt install wsdd -y
 # install avahi for macOS clients
 sudo apt install avahi-daemon -y
 
+# Install the gvfs-backends
+sudo apt install gvfs-backends -y
 
 echo "Setting up SAMBA shared folder..."
 echo "Current user: $USER"
@@ -75,8 +77,8 @@ echo ""
 echo -e "Shared folder '\e[32m$SHARENAME\e[0m' has been set up successfully at \e[32m$SHAREPATH/$SHARENAME\e[0m"
 
 
-# Get the IP address of the local machine
-IPADDR=$(hostname -I | awk '{print $1}')
+## Get the IP address of the local machine (option replaced by hostname)
+## IPADDR=$(hostname -I | awk '{print $1}')
 
 # Display instructions for accessing the shared folder
 echo ""
@@ -84,18 +86,18 @@ echo "To access the shared folder from other machines on the network:"
 echo ""
 echo "Linux clients:"
 echo "1. Open the file manager."
-echo -e "2. Enter the following URL in the address bar: \e[32msmb://$IPADDR/$SHARENAME\e[0m"
+echo -e "2. Enter the following URL in the address bar: \e[32msmb://$HOSTNAME.local/$SHARENAME\e[0m"
 echo "3. Click 'Connect' and enter 'anonymous' as the username (no password needed)."
 echo "If you want to set up the shared folder PERMANENTLY on your client,  "
 echo "leave this window open, run this script on your client machine and select"
 echo "the 'Setup this computer as the client' option from the menu"
-echo -e "RED ADDRESS (for client setup): \e[31m//$IPADDR/$SHARENAME\e[0m"
+echo -e "RED ADDRESS (for client setup): \e[31m//$HOSTNAME.local/$SHARENAME\e[0m"
 echo ""
 echo "Windows clients:"
 echo "1. Open File Explorer."
 echo "2. Click on 'This PC' on the left sidebar."
 echo "3. Click on the computer tab and then choose 'Map network drive' in the top bar."
-echo -e "4. Enter the following URL in the 'Folder' field: \e[32m\\\\\\\\$IPADDR\\\\$SHARENAME\e[0m"
+echo -e "4. Enter the following URL in the 'Folder' field: \e[32m\\\\\\\\$HOSTNAME\\\\$SHARENAME\e[0m"
 echo "5. Click 'Finish' and enter 'guest' as the username (no password needed)."
 echo ""
 
@@ -201,18 +203,18 @@ echo "To access the shared folder from other machines on the network:"
 echo ""
 echo "Linux clients:"
 echo "1. Open the file manager."
-echo -e "2. Enter this address: \e[32msmb://$IPADDR/$SHARENAME\e[0m"
+echo -e "2. Enter this address: \e[32msmb://$HOSTNAME.local/$SHARENAME\e[0m"
 echo "3. Connect as 'Registered User'"
 echo -e "Username: \e[32m$samba_username\e[0m, Domain: '\e[32mworkgroup\e[0m', password: \e[32m$password\e[0m"
 echo "If you want to set up the shared folder PERMANENTLY on your client,  "
 echo "DO NOT CLOSE THIS WINDOW, run this script on your client machine"
-echo -e "RED ADDRESS (for client setup): \e[31m//$IPADDR/$SHARENAME\e[0m"
+echo -e "RED ADDRESS (for client setup): \e[31m//$HOSTNAME.local/$SHARENAME\e[0m"
 echo ""
 echo "Windows clients:"
 echo "1. Open File Explorer."
 echo "2. Click on 'This PC' on the left sidebar."
 echo "3. Click on the computer tab and then choose 'Map network drive' in the top bar."
-echo -e "4. Enter this URL in the folder field: \e[32m\\\\\\\\$IPADDR\\\\$SHARENAME\e[0m"
+echo -e "4. Enter this URL in the folder field: \e[32m\\\\\\\\$HOSTNAME\\\\$SHARENAME\e[0m"
 echo "5. Tick the 'Connect using different credentials' checkbox"
 echo -e "Username: \e[32m$samba_username\e[0m, password: \e[32m$password\e[0m"
 echo "6. Remember my credentials and click 'OK'."
@@ -240,15 +242,16 @@ sudo chmod 777 "/media/$USER/$dir_name"
 sudo chown -R $USER:$USER "/media/$USER/$dir_name"
 
 # Prompt the user for the network share path
-## read -p "Enter the path of the shared folder on the network (e.g. //serverIP/shared_folder): " share_path
+
 while true; do
-    read -p "Enter the path of the shared folder on the server EXACTLY AS DISPLAYED IN RED during setup (e.g. //serverIP/shared_folder): " share_path
-    if [[ $share_path =~ ^\/\/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\/[a-zA-Z0-9_]+ ]]; then
+    read -p "Enter the path of the shared folder on the server EXACTLY AS DISPLAYED IN RED during setup (e.g. //hostname/ShareName): " share_path
+    if [[ $share_path =~ ^\/\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_]+ ]]; then
         break
     else
-        echo "Invalid format. Please enter the path in the format //XXX.XXX.XXX.XXX/ShareName"
+        echo "Invalid format. Please enter the path in the format //hostname/ShareName"
     fi
 done
+
 
 # Add the CIFS mount to /etc/fstab
 echo "${share_path} /media/$USER/$dir_name cifs credentials=/home/$USER/.smbcredentials,uid=$UID,nounix,noauto,user,dir_mode=0777,file_mode=0666 0 0" | sudo tee -a /etc/fstab > /dev/null
@@ -261,6 +264,10 @@ read -s -p "Enter the password to access the network share (hit ENTER if no pass
 echo "username=$username" | tee ~/.smbcredentials > /dev/null
 echo "password=$password" | tee -a ~/.smbcredentials > /dev/null
 chmod 600 ~/.smbcredentials
+
+# Install the gvfs-backends
+sudo apt install gvfs-backends -y
+
 
 # Mount the share
 sudo mount -a
@@ -289,28 +296,27 @@ show_menu() {
 show_server_menu() {
     clear
     echo -e "\e[1;36mSelect an option:\e[0m"
-    # option 1b
+    # share guest menu option
     echo -e "\e[1;34m1. Setup the shared folder without a password\e[0m"
-    # option 2b
+    # share pass menu option
     echo -e "\e[1;34m2. Setup the shared folder with a password\e[0m"
     echo -e "\e[1;31m0. Go back\e[0m"
 }
 
-# Function to execute option 1b
-option_1b() {
+# Function to execute shared folder without a password
+share_guest() {
     clear
     echo -e "\e[1;34mSetting up...\e[0m"
     # Code for option 1b goes here
     samba_server_guest
 }
 
-# Function to execute option 2b
-option_2b() {
+# Function to execute shared folder with a password
+share_pass() {
     clear
     echo -e "\e[1;34mSetting up...\e[0m"
     # Code for option 2b goes here
     samba_server_passw
-    pause 20
 }
 
 
@@ -325,8 +331,8 @@ option_1() {
         show_server_menu
         read -p "Enter your choice: " choice
         case $choice in
-            1) option_1b ;;
-            2) option_2b ;;
+            1) share_guest ;;
+            2) share_pass ;;
             0) break ;;
             *) clear; echo -e "\e[1;31mInvalid option. Please try again.\e[0m" ;;
         esac
@@ -351,4 +357,3 @@ while true; do
         *) clear; echo -e "\e[1;31mInvalid option. Please try again.\e[0m" ;;
     esac
 done
-
