@@ -193,8 +193,8 @@ sudo systemctl restart smbd
 
 echo -e "Shared folder '\e[32m$SHARENAME\e[0m' has been set up successfully at \e[32m$SHAREPATH/$SHARENAME\e[0m"
 
-# Get the IP address of the local machine
-IPADDR=$(hostname -I | awk '{print $1}')
+## Get the IP address of the local machine (option replaced by hostname)
+## IPADDR=$(hostname -I | awk '{print $1}')
 
 # Display instructions for accessing the shared folder
 clear
@@ -357,3 +357,4 @@ while true; do
         *) clear; echo -e "\e[1;31mInvalid option. Please try again.\e[0m" ;;
     esac
 done
+
