@@ -1,12 +1,12 @@
 # samba-shared-folder-linux-mint
 Setup a network shared folder on linux Mint with SAMBA.
 
-This script will setup a shared folder on the network accessible to other linux, windows or Mac clients usimng the SAMBA protocol.
+This script will setup a shared folder on the network accessible to other linux, windows or Mac clients using the SAMBA protocol.
 The script will walk you through the steps and show you important information once it finished setting up.
 The script should work on Linux mint 20.X and 21.X, XFCE, Mate and Cinnamon. It will most likely also work in other Ubuntu based distributions, i just havent tested it yet.
 
 
-<h1>How to run the script</h1>
+<h2>How to run the script</h2>
 Steps for the absolute newbie: 
 1. Download the latest version .sh file from this website.
 2. Right click the downloaded file, open Properties, click the Permissions tab and tick the "Allow this file to run as a program" checkbox. Close the properties dialog.
