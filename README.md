@@ -13,7 +13,7 @@ Steps for the absolute newbie:
 2. Right click the downloaded file, open Properties, click the Permissions tab and tick the "Allow this file to run as a program" checkbox. Close the properties dialog.
 3. Right click anywhere on an empty space next to the file, and chose "Open in terminal". A new terminal will open in the directory where the .sh file is located. For example ~/Downloads 
 4. Now run the script. Type:
-./setup-samba-shared-MEDIA.sh and hit enter. (replace the name of the file if different)
+<code>./setup-samba-shared-MEDIA.sh</code> and hit enter. (replace the name of the file if different)
 5. Follow the instructions during setup. DO not rush and pay attention to the prompts.
 
 <h2>Installation</h2>
